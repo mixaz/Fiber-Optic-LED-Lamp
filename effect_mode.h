@@ -45,7 +45,7 @@ void confetti_GB()
 
 
 //////////////////////////
-void sinelon()
+void sinelon_fiber()
 {
   // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 12);
@@ -54,7 +54,7 @@ void sinelon()
 }
 
 //////////////////////////
-void juggle() {
+void juggle_fiber() {
   // four colored dots, weaving in and out of sync with each other
   fadeToBlackBy( leds, NUM_LEDS, 20);
   byte dothue = 0;
@@ -260,13 +260,13 @@ void twoDots() {
 typedef void (*SimplePatternList[])();
 //SimplePatternList gPatterns = { applause, fillAndCC, blinkyblink1, blinkyblink2, spewFour, spew, confetti_GB, rainbow, confetti, sinelon, juggle };
 //SimplePatternList gPatterns = { twoDots, fillAndCC, blinkyblink2, spewFour, spew, confetti_GB, rainbow, confetti, sinelon, juggle };
-SimplePatternList gPatterns = { twoDots, fillAndCC, blinkyblink2, spewFour, spew, confetti_GB, rainbow, applause, confetti, sinelon, juggle };
+SimplePatternList gPatterns = { twoDots, fillAndCC, blinkyblink2, spewFour, spew, confetti_GB, rainbow, applause, confetti, sinelon_fiber, juggle_fiber };
 
 void nextPattern()
 {
   // add one to the current pattern number, and wrap around at the end
   gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
+  Serial.print("gCurrentPatternNumber: "); Serial.println(gCurrentPatternNumber);
 }
 
 #endif /* EFFECT_MODE_H_ */
-
