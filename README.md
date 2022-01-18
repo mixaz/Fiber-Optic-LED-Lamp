@@ -8,8 +8,10 @@ Added sound effects from https://github.com/s-marley/Uno_vu_line
 ## Wiring
 
 LED pin: 8
+
 Button pin: 7
-Microphone pin: A5 (see Uno_vu_line project for microphone schematics)
+
+Microphone pin: A5 (see Uno_vu_line project for microphone schematics). Only one channel is used.
 
 Button features:
 
