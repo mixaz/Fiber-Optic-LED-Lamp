@@ -7,14 +7,22 @@ Added sound effects from https://github.com/s-marley/Uno_vu_line
 
 ## Wiring
 
+Mode button pin: 7
+
 LED pin: 8
 
-Button pin: 7
+Brightness+ pin: 9
+
+Brightness- pin: 10
 
 Microphone pin: A5 (see Uno_vu_line project for microphone schematics). Only one channel is used.
 
-Button features:
+Mode button features:
 
 1. Double click: switch modes color - pallets - patterns - sound effects - sound effects (auto)
 2. Single click: switch variants of selected mode
 
+Brightness buttons:
+
+1. Single click: +5/5 (of 255)
+2. Long click: +20/-20
