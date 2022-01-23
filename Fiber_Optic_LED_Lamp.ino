@@ -179,13 +179,16 @@ void loop() {
     fiberLedShow();
   }
   else if (setMode == 2) {
+    FastLED.setBrightness(brightness);
     gPatterns[gCurrentPatternNumber]();
     fiberLedShow();
   }
   else if (setMode == 3) {
+    FastLED.setBrightness(brightness);
     runSelectedPattern();
   }
   else if (setMode == 4) {
+    FastLED.setBrightness(brightness);
   // Switch pattern if on auto
     EVERY_N_SECONDS(PATTERN_TIME) { 
       incrementButtonPushCounter();
