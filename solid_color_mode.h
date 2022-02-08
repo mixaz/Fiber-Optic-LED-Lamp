@@ -3,7 +3,7 @@
 
 int colorCounter = 0;
 
-void ChangeColorPeriodically()
+void fillColor()
 {
 if( colorCounter == 0 || colorCounter == 1) { fill_solid( leds, NUM_LEDS, CHSV(0, 255, 192));}
 if( colorCounter == 2 || colorCounter == 3) { fill_solid( leds, NUM_LEDS, CHSV(32, 255, 255));}

@@ -6,10 +6,13 @@
 //#endif
 
 // define the LEDs
-#define BTN_PIN           7          // Push button on this pin [3]
+//#define BTN_PIN           7          // Push button on this pin [3]
 #define LED_PIN           8          // pin the LEDs are connected to
 #define BRIGTH_PLUS_PIN   9
 #define BRIGTH_MINUS_PIN  10
+#define COLOR_PIN         11
+#define PATTERN_PIN       12
+#define SOUND_PIN         13
 
 #define ANALOG_MAX  (1024*1)        // (1024*4) for STM32
 
@@ -18,7 +21,7 @@
 #define COLOR_ORDER GRB
 #define UPDATES_PER_SECOND 100
 
-CRGB leds[NUM_LEDS];
+static CRGB leds[NUM_LEDS];
 
 #include "solid_color_mode.h"
 #include "palette_mode.h"
@@ -26,13 +29,37 @@ CRGB leds[NUM_LEDS];
 
 #include "uno_vu_line.h"
 
-PinButton FunctionButton(BTN_PIN,INPUT_PULLUP);
+//PinButton FunctionButton(BTN_PIN,INPUT_PULLUP);
 PinButton brightPlusButton(BRIGTH_PLUS_PIN,INPUT_PULLUP);
 PinButton brightMinusButton(BRIGTH_MINUS_PIN,INPUT_PULLUP);
+PinButton colorButton(COLOR_PIN,INPUT_PULLUP);
+PinButton patternButton(PATTERN_PIN,INPUT_PULLUP);
+PinButton soundButton(SOUND_PIN,INPUT_PULLUP);
 
 static int setMode = 0;
 
 static int brightness = 200;
+
+static int effectNum = 0;
+
+//    EEPROM.update(0, setMode);
+//    EEPROM.update(1, colorCounter);
+//    EEPROM.update(2, paletteCounter);
+//    EEPROM.update(3, gCurrentPatternNumber);
+//    Serial.println("shooting down");
+
+static void nextEffect(int step) {
+  int maxEffects = 11 + ARRAY_SIZE(gPatterns);
+  effectNum = (effectNum+step + maxEffects) % maxEffects;
+  if (effectNum < 11) {
+      setMode = 1;
+      paletteCounter = effectNum;
+  }
+  else {
+      setMode = 2;
+      gCurrentPatternNumber = effectNum - 11;
+  }
+}
 
 //#ifdef ARDUINO_ARCH_AVR
 //void wakeUp(){
@@ -84,59 +111,62 @@ void fiberLedShow(void) {
 
 void loop() {
 
-  FunctionButton.update();
+//  FunctionButton.update();
   brightPlusButton.update();
   brightMinusButton.update();
+  colorButton.update();
+  patternButton.update();
+  soundButton.update();
 
-  if (FunctionButton.isSingleClick()) {
-    Serial.println("single click");
+  if (colorButton.isSingleClick()) {
     if (setMode == 0) {
-      colorCounter++;
-      if (colorCounter > 17) {
-        colorCounter = 0;
-      }
-     Serial.print("colorCounter: "); Serial.println(colorCounter);
+      colorCounter = (colorCounter+1) % 17;
     }
-    else if (setMode == 1) {
-      paletteCounter++;
-      if (paletteCounter > 11) { // adjust if you have more or less than 34 palettes
-        paletteCounter = 0;
-      }
-     Serial.print("paletteCounter: "); Serial.println(paletteCounter);
-    }
-    else if (setMode == 2) {
-      nextPattern();  // Change to the next pattern
-    }
-    else if (setMode == 3) {
-        Serial.print("buttonPushCounter: ");
-        Serial.println(buttonPushCounter);
-        incrementButtonPushCounter();
-    }
-    else if (setMode == 4) {
-        Serial.println("Single click is not used in this mode");
-    }
-  }
-  else if (FunctionButton.isDoubleClick()) {
-    Serial.println("double click");
-    setMode++;
-    if (setMode > 4) {
+    else {
       setMode = 0;
     }
-    Serial.print("double click, setMode: ");
-    Serial.println(setMode);
   }
-  else if (FunctionButton.isLongClick()) {
-    Serial.println("long click");
-    FastLED.clear();
-    FastLED.show();
-//    EEPROM.update(0, setMode);
-//    EEPROM.update(1, colorCounter);
-//    EEPROM.update(2, paletteCounter);
-//    EEPROM.update(3, gCurrentPatternNumber);
-//    Serial.println("shooting down");
-//    delay(500);
-//    Going_To_Sleep();
-//    Serial.println("waking up");
+  else if (colorButton.isDoubleClick()) {
+    if (setMode == 0) {
+      colorCounter = (colorCounter-1+17) % 17;
+    }
+    else {
+      setMode = 0;
+    }
+  }
+
+  if (patternButton.isSingleClick()) {
+    if (setMode == 1 || setMode == 2) {
+      nextEffect(1);
+    }
+    else {
+      nextEffect(0);
+    }
+  }
+  else if (patternButton.isDoubleClick()) {
+    if (setMode == 1 || setMode == 2) {
+      nextEffect(-1);
+    }
+    else {
+      nextEffect(0);
+    }
+  }
+
+  if (soundButton.isSingleClick()) {
+    if (setMode == 3) {
+      nextSoundEffect(1);
+    }
+    else {
+      setMode = 3;
+    }
+  }
+  else if (soundButton.isDoubleClick()) {
+    if (setMode == 3) {
+      nextSoundEffect(-1);
+    }
+    else {
+      setMode = 3;
+    }
   }
 
   int newBrightness = brightness;
@@ -167,15 +197,13 @@ void loop() {
     else {
       FastLED.setBrightness(brightness);
     }
-    ChangeColorPeriodically();
+    fillColor();
     fiberLedShow();
   }
   else if (setMode == 1) {
     FastLED.setBrightness(brightness);
-    ChangePalettePeriodically();
-    static uint8_t startIndex = 0;
-    startIndex = startIndex + 1;
-    FillLEDsFromPaletteColors(startIndex);
+    setPalette();
+    FillLEDsFromPaletteColors(paletteCounter);
     fiberLedShow();
   }
   else if (setMode == 2) {
@@ -185,16 +213,6 @@ void loop() {
   }
   else if (setMode == 3) {
     FastLED.setBrightness(brightness);
-    runSelectedPattern();
-  }
-  else if (setMode == 4) {
-    FastLED.setBrightness(brightness);
-  // Switch pattern if on auto
-    EVERY_N_SECONDS(PATTERN_TIME) { 
-      incrementButtonPushCounter();
-      Serial.print("Auto, pattern ");
-      Serial.println(buttonPushCounter); 
-    }
     runSelectedPattern();
   }
 

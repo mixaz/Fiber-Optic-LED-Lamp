@@ -5,7 +5,6 @@ CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 int paletteCounter = 0;
 
-
 void FillLEDsFromPaletteColors( uint8_t colorIndex)
 {
   uint8_t brightness = 255;
@@ -194,7 +193,7 @@ DEFINE_GRADIENT_PALETTE( Analogous_1_gp ) {
 
 // There are several different palettes of colors demonstrated below.
 
-void ChangePalettePeriodically()
+void setPalette()
 {
     if( paletteCounter == 0)  { currentPalette = rainbow_gp; currentBlending = LINEARBLEND;  }
     if( paletteCounter == 1)  { currentPalette = es_landscape_24_gp; currentBlending = LINEARBLEND;  }
@@ -211,4 +210,3 @@ void ChangePalettePeriodically()
 }
 
 #endif /* PALETTE_MODE_H_ */
-

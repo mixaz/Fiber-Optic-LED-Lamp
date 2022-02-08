@@ -49,8 +49,8 @@ void rainbow(uint8_t rate);
 // --------------------
 int buttonPushCounter = 0;
 
-void incrementButtonPushCounter() {
-  buttonPushCounter = ++buttonPushCounter %17;
+void nextSoundEffect(int step) {
+  buttonPushCounter = (buttonPushCounter + step + 17) % 17;
 //  EEPROM.write(1, buttonPushCounter);
 }
 

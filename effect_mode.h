@@ -262,10 +262,10 @@ typedef void (*SimplePatternList[])();
 //SimplePatternList gPatterns = { twoDots, fillAndCC, blinkyblink2, spewFour, spew, confetti_GB, rainbow, confetti, sinelon, juggle };
 SimplePatternList gPatterns = { twoDots, fillAndCC, blinkyblink2, spewFour, spew, confetti_GB, rainbow, applause, confetti, sinelon_fiber, juggle_fiber };
 
-void nextPattern()
+void nextPattern(int step)
 {
   // add one to the current pattern number, and wrap around at the end
-  gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
+  gCurrentPatternNumber = (gCurrentPatternNumber + step + ARRAY_SIZE( gPatterns)) % ARRAY_SIZE( gPatterns);
   Serial.print("gCurrentPatternNumber: "); Serial.println(gCurrentPatternNumber);
 }
 
